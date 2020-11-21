@@ -68,6 +68,15 @@ jobs:
       run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN }}
+    - name: Publish dev branch to npm
+      if: (github.ref == 'refs/heads/dev') && github.event_name == 'push'
+      run: |
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
+        npm unpublish --force "$PACKAGE_NAME@$CURRENT_VERSION"
+        npm publish --tag dev
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN }}
     - name: Trigger danielwelch/hassio-zigbee2mqtt build
       if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
       run: |
